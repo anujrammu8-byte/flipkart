@@ -950,25 +950,23 @@
 
         <div id="upi-panel" class="open">
             <div class="rounded-lg border bg-white pb-2 border-gray-200">
-                <label class="flex items-center justify-between gap-2 py-2 px-3 rounded-md cursor-pointer hover:bg-gray-100 flex-1 w-full form-check active" pay-type="phonepe">
+                <div class="flex items-center justify-between gap-2 py-2 px-3" style="opacity:0.5;">
                     <div class="flex items-center gap-2">
                         <img src="./payment_files/phonepe.svg" class="w-6 h-6">
                         <span class="text-sm font-medium">PhonePe</span>
                     </div>
+                    <span class="text-xs text-gray-500 font-semibold">Unavailable</span>
+                </div>
 
-                    <input type="radio" name="upiApp" value="phonepe" class="accent-blue-600" checked="">
-                </label>
-
-                <label class="flex items-center justify-between gap-2 py-2 px-3 w-full rounded-md cursor-pointer hover:bg-gray-100 flex-1 form-check" pay-type="paytm">
+                <div class="flex items-center justify-between gap-2 py-2 px-3" style="opacity:0.5;">
                     <div class="flex items-center gap-2">
                         <img src="./payment_files/paytm_icon.svg" class="w-6 h-6">
                         <span class="text-sm font-medium">Paytm</span>
                     </div>
+                    <span class="text-xs text-gray-500 font-semibold">Unavailable</span>
+                </div>
 
-                    <input type="radio" name="upiApp" value="paytm" class="accent-blue-600">
-                </label>
-
-                <label class="flex items-center justify-between gap-2 py-2 px-3 w-full rounded-md cursor-pointer hover:bg-gray-100 flex-1 form-check" pay-type="qr_upi">
+                <label class="flex items-center justify-between gap-2 py-2 px-3 w-full rounded-md cursor-pointer hover:bg-gray-100 flex-1 form-check active" pay-type="qr_upi">
                     <div class="flex items-center gap-2">
                         <img src="./payment_files/qr.png" class="w-6 h-6">
                         <span class="text-sm font-medium">QR Code</span>

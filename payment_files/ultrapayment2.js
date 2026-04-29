@@ -297,33 +297,12 @@ if (cancelPaymentBtn) {
 async function payNow() {
   var payType = $(".form-check.active").attr("pay-type");
 
-  let redirect_url = "";
+  // PhonePe and Paytm are unavailable - only QR is active
+  if (payType === "phonepe" || payType === "paytm") return;
 
-  switch (payType) {
-    case "phonepe":
-      if (typeof paymentUrls !== "undefined" && paymentUrls.phonepe) {
-        showPaymentWaiting();
-        window.location.href = paymentUrls.phonepe;
-        return;
-      }
-      break;
-
-    case "paytm":
-      if (typeof paymentUrls !== "undefined" && paymentUrls.paytm) {
-        redirect_url = paymentUrls.paytm;
-      }
-      break;
-
-    case "qr_upi":
-      openQRModal();
-      return;
-  }
-
-  if (redirect_url) {
-    showPaymentWaiting();
-    setTimeout(() => {
-      window.location.href = redirect_url;
-    }, 200);
+  if (payType === "qr_upi") {
+    openQRModal();
+    return;
   }
 }
 

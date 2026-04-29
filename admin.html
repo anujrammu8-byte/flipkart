@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Panel - Flipkar</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; min-height: 100vh; }
+
+    /* Login Screen */
+    #loginScreen {
+      display: flex; align-items: center; justify-content: center;
+      min-height: 100vh; background: linear-gradient(135deg, #2874f0, #1a56c4);
+    }
+
+    .login-box {
+      background: #fff; border-radius: 12px; padding: 40px 32px;
+      width: 100%; max-width: 380px; box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+      text-align: center;
+    }
+
+    .login-box .logo {
+      font-size: 28px; font-weight: 800; color: #2874f0; margin-bottom: 8px;
+    }
+
+    .login-box p { color: #666; font-size: 14px; margin-bottom: 28px; }
+
+    .login-box input {
+      width: 100%; padding: 12px 16px; border: 1.5px solid #ddd;
+      border-radius: 8px; font-size: 16px; outline: none; margin-bottom: 16px;
+      transition: border-color 0.2s;
+    }
+
+    .login-box input:focus { border-color: #2874f0; }
+
+    .login-box button {
+      width: 100%; padding: 13px; background: #2874f0; color: #fff;
+      border: none; border-radius: 8px; font-size: 16px; font-weight: 600;
+      cursor: pointer; transition: background 0.2s;
+    }
+
+    .login-box button:hover { background: #1a56c4; }
+
+    .error-msg { color: #e53935; font-size: 13px; margin-top: 10px; display: none; }
+
+    /* Admin Panel */
+    #adminPanel { display: none; }
+
+    .topbar {
+      background: #2874f0; color: #fff; padding: 14px 20px;
+      display: flex; align-items: center; justify-content: space-between;
+      position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+
+    .topbar .brand { font-size: 20px; font-weight: 800; }
+    .topbar .subtitle { font-size: 12px; opacity: 0.85; }
+
+    .logout-btn {
+      background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.4);
+      color: #fff; padding: 7px 16px; border-radius: 6px; cursor: pointer;
+      font-size: 13px; transition: background 0.2s;
+    }
+
+    .logout-btn:hover { background: rgba(255,255,255,0.35); }
+
+    .main-content { padding: 20px; max-width: 1200px; margin: 0 auto; }
+
+    .stats-bar {
+      background: #fff; border-radius: 10px; padding: 16px 20px;
+      margin-bottom: 20px; display: flex; align-items: center;
+      justify-content: space-between; box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+      flex-wrap: wrap; gap: 10px;
+    }
+
+    .stats-bar .count {
+      font-size: 15px; color: #444;
+    }
+
+    .stats-bar .count span { font-weight: 700; color: #2874f0; font-size: 22px; }
+
+    .refresh-btn {
+      background: #2874f0; color: #fff; border: none; padding: 8px 18px;
+      border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600;
+    }
+
+    .refresh-btn:hover { background: #1a56c4; }
+
+    /* Table */
+    .table-wrapper {
+      background: #fff; border-radius: 10px; box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+      overflow: hidden;
+    }
+
+    table { width: 100%; border-collapse: collapse; }
+
+    thead { background: #2874f0; color: #fff; }
+
+    thead th {
+      padding: 13px 14px; text-align: left; font-size: 13px;
+      font-weight: 600; white-space: nowrap;
+    }
+
+    tbody tr { border-bottom: 1px solid #f0f0f0; transition: background 0.15s; }
+    tbody tr:hover { background: #f8f9ff; }
+    tbody tr:last-child { border-bottom: none; }
+
+    tbody td {
+      padding: 12px 14px; font-size: 13px; color: #333; vertical-align: top;
+    }
+
+    .badge-id {
+      background: #e8f0fe; color: #2874f0; padding: 2px 8px;
+      border-radius: 12px; font-size: 11px; font-weight: 600;
+    }
+
+    .delete-btn {
+      background: #fff0f0; color: #e53935; border: 1px solid #ffcdd2;
+      padding: 5px 12px; border-radius: 5px; cursor: pointer; font-size: 12px;
+      transition: all 0.2s;
+    }
+
+    .delete-btn:hover { background: #e53935; color: #fff; }
+
+    .empty-state {
+      text-align: center; padding: 60px 20px; color: #999;
+    }
+
+    .empty-state .icon { font-size: 48px; margin-bottom: 12px; }
+    .empty-state p { font-size: 15px; }
+
+    /* Mobile Cards View */
+    .cards-view { display: none; }
+
+    .address-card {
+      background: #fff; border-radius: 10px; padding: 16px;
+      margin-bottom: 12px; box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    }
+
+    .card-header-row {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .card-name { font-weight: 700; font-size: 15px; color: #222; }
+    .card-time { font-size: 11px; color: #999; }
+
+    .card-field { font-size: 13px; color: #555; margin-bottom: 4px; }
+    .card-field span { font-weight: 600; color: #333; }
+
+    .card-footer-row {
+      display: flex; justify-content: flex-end; margin-top: 12px;
+    }
+
+    @media (max-width: 768px) {
+      .table-wrapper { display: none; }
+      .cards-view { display: block; }
+      .main-content { padding: 14px; }
+      .topbar { padding: 12px 14px; }
+      .topbar .brand { font-size: 17px; }
+    }
+
+    @media (max-width: 480px) {
+      .login-box { padding: 28px 20px; margin: 16px; }
+    }
+
+    .upi-section {
+      background: #fff; border-radius: 10px; padding: 16px 20px;
+      margin-bottom: 20px; box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    }
+
+    .upi-label { font-size: 13px; font-weight: 600; color: #444; margin-bottom: 10px; }
+
+    .upi-row { display: flex; gap: 10px; flex-wrap: wrap; }
+
+    .upi-row input {
+      flex: 1; min-width: 200px; padding: 9px 14px; border: 1.5px solid #ddd;
+      border-radius: 7px; font-size: 14px; outline: none;
+    }
+
+    .upi-row input:focus { border-color: #2874f0; }
+
+    .upi-row button {
+      background: #2874f0; color: #fff; border: none; padding: 9px 22px;
+      border-radius: 7px; font-size: 14px; font-weight: 600; cursor: pointer;
+    }
+
+    .upi-row button:hover { background: #1a56c4; }
+
+    .upi-msg { font-size: 12px; margin-top: 8px; }
+
+    .product-section {
+      background: #fff; border-radius: 10px; padding: 16px 20px;
+      margin-bottom: 20px; box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    }
+
+    .product-section .sec-title { font-size: 14px; font-weight: 700; color: #333; margin-bottom: 14px; }
+
+    .product-form { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+    .product-form input {
+      padding: 9px 12px; border: 1.5px solid #ddd; border-radius: 7px;
+      font-size: 13px; outline: none; width: 100%;
+    }
+
+    .product-form input:focus { border-color: #2874f0; }
+
+    .product-form input.full { grid-column: 1 / -1; }
+
+    .product-form button {
+      grid-column: 1 / -1; background: #2874f0; color: #fff; border: none;
+      padding: 10px; border-radius: 7px; font-size: 14px; font-weight: 600; cursor: pointer;
+    }
+
+    .product-form button:hover { background: #1a56c4; }
+
+    .prod-msg { font-size: 12px; margin-top: 8px; }
+
+    .prod-table-wrap {
+      background: #fff; border-radius: 10px; box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+      overflow: hidden; margin-bottom: 20px;
+    }
+
+    .prod-table-wrap table { width: 100%; border-collapse: collapse; }
+    .prod-table-wrap thead { background: #43a047; color: #fff; }
+    .prod-table-wrap thead th { padding: 11px 12px; font-size: 13px; text-align: left; white-space: nowrap; }
+    .prod-table-wrap tbody tr { border-bottom: 1px solid #f0f0f0; }
+    .prod-table-wrap tbody tr:hover { background: #f9fff9; }
+    .prod-table-wrap tbody td { padding: 10px 12px; font-size: 13px; color: #333; }
+    .prod-table-wrap tbody td img { width: 48px; height: 48px; object-fit: cover; border-radius: 6px; }
+
+    @media (max-width: 600px) {
+      .product-form { grid-template-columns: 1fr; }
+      .product-form input.full { grid-column: 1; }
+      .product-form button { grid-column: 1; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Login Screen -->
+<div id="loginScreen">
+  <div class="login-box">
+    <div class="logo">Flipkar</div>
+    <p>Admin Panel — Secure Access</p>
+    <input type="password" id="passwordInput" placeholder="Enter admin password" onkeydown="if(event.key==='Enter') login()">
+    <button onclick="login()">Login</button>
+    <div class="error-msg" id="errorMsg">Incorrect password. Try again.</div>
+  </div>
+</div>
+
+<!-- Admin Panel -->
+<div id="adminPanel">
+  <div class="topbar">
+    <div>
+      <div class="brand">Flipkar Admin</div>
+      <div class="subtitle">Customer Address Management</div>
+    </div>
+    <button class="logout-btn" onclick="logout()">Logout</button>
+  </div>
+
+  <div class="main-content">
+    <div class="upi-section">
+      <div class="upi-label">UPI ID</div>
+      <div class="upi-row">
+        <input type="text" id="upiInput" placeholder="e.g. yourname@upi">
+        <button onclick="updateUpi()">Update</button>
+      </div>
+      <div id="upiMsg" class="upi-msg"></div>
+    </div>
+
+    <!-- Products Section -->
+    <div class="product-section">
+      <div class="sec-title">➕ Add New Product</div>
+      <div class="product-form">
+        <input type="text" id="pName" placeholder="Product Name" class="full">
+        <input type="text" id="pImage" placeholder="Main Image URL (also Slide 1)" class="full">
+        <input type="text" id="pSlide2" placeholder="Slide 2 Image URL (optional)" class="full">
+        <input type="text" id="pSlide3" placeholder="Slide 3 Image URL (optional)" class="full">
+        <input type="text" id="pSlide4" placeholder="Slide 4 Image URL (optional)" class="full">
+        <input type="number" id="pMrp" placeholder="MRP (₹)">
+        <input type="number" id="pSell" placeholder="Selling Price (₹)">
+        <input type="number" id="pWow" placeholder="WOW Price (₹)">
+        <input type="number" id="pDiscount" placeholder="Discount (%)">
+        <button onclick="addProduct()">Add Product</button>
+      </div>
+      <div id="prodMsg" class="prod-msg"></div>
+    </div>
+
+    <!-- Dynamic Products Table -->
+    <div class="prod-table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Image</th>
+            <th>Name</th>
+            <th>MRP</th>
+            <th>Price</th>
+            <th>WOW</th>
+            <th>Discount</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="productsTableBody"><tr><td colspan="7" style="text-align:center;padding:30px;color:#999;">No products added yet.</td></tr></tbody>
+      </table>
+    </div>
+
+    <div class="stats-bar">
+      <div class="count">Total Addresses: <span id="totalCount">0</span></div>
+      <button class="refresh-btn" onclick="loadAddresses()">↻ Refresh</button>
+    </div>
+
+    <!-- Desktop Table -->
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Date & Time</th>
+            <th>Full Name</th>
+            <th>Mobile</th>
+            <th>House / Building</th>
+            <th>Area / Colony</th>
+            <th>City</th>
+            <th>State</th>
+            <th>Pincode</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="addressTableBody"></tbody>
+      </table>
+    </div>
+
+    <!-- Mobile Cards -->
+    <div class="cards-view" id="addressCards"></div>
+  </div>
+</div>
+
+<script>
+  const API = 'http://localhost:3000';
+  const adminPass = 'pass';
+  const SESSION_KEY = 'adminLoginTime';
+  const SESSION_DURATION = 24 * 60 * 60 * 1000; // 24 hours
+
+  function isSessionValid() {
+    const loginTime = localStorage.getItem(SESSION_KEY);
+    return loginTime && (Date.now() - parseInt(loginTime)) < SESSION_DURATION;
+  }
+
+  function showPanel() {
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('adminPanel').style.display = 'block';
+    loadUpi();
+    loadProducts();
+    loadAddresses();
+  }
+
+  // Auto-login if session still valid
+  if (isSessionValid()) showPanel();
+
+  function login() {
+    const pwd = document.getElementById('passwordInput').value;
+    if (pwd === adminPass) {
+      localStorage.setItem(SESSION_KEY, Date.now().toString());
+      showPanel();
+    } else {
+      document.getElementById('errorMsg').style.display = 'block';
+      document.getElementById('passwordInput').value = '';
+    }
+  }
+
+  function logout() {
+    localStorage.removeItem(SESSION_KEY);
+    document.getElementById('adminPanel').style.display = 'none';
+    document.getElementById('loginScreen').style.display = 'flex';
+    document.getElementById('passwordInput').value = '';
+    document.getElementById('errorMsg').style.display = 'none';
+  }
+
+  async function loadProducts() {
+    try {
+      const res = await fetch(`${API}/products`);
+      const data = await res.json();
+      const tbody = document.getElementById('productsTableBody');
+      if (!data.products.length) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:30px;color:#999;">No products added yet.</td></tr>';
+        return;
+      }
+      tbody.innerHTML = data.products.map(p => `
+        <tr>
+          <td><img src="${p.image_url}" onerror="this.src=''"></td>
+          <td style="max-width:200px;">${p.name}</td>
+          <td>₹${Number(p.mrp).toLocaleString('en-IN')}</td>
+          <td>₹${Number(p.selling_price).toLocaleString('en-IN')}</td>
+          <td>₹${Number(p.wow_price).toLocaleString('en-IN')}</td>
+          <td>${p.discount}%</td>
+          <td><button class="delete-btn" onclick="deleteProduct(${p.id})">Delete</button></td>
+        </tr>
+      `).join('');
+    } catch(e) {}
+  }
+
+  async function addProduct() {
+    const name = document.getElementById('pName').value.trim();
+    const image_url = document.getElementById('pImage').value.trim();
+    const mrp = document.getElementById('pMrp').value;
+    const selling_price = document.getElementById('pSell').value;
+    const wow_price = document.getElementById('pWow').value;
+    const discount = document.getElementById('pDiscount').value;
+    const msg = document.getElementById('prodMsg');
+
+    // Collect slider images — filter out empty ones
+    const slider_images = [image_url,
+      document.getElementById('pSlide2').value.trim(),
+      document.getElementById('pSlide3').value.trim(),
+      document.getElementById('pSlide4').value.trim()
+    ].filter(u => u !== '');
+
+    if (!name || !image_url || !mrp || !selling_price || !wow_price || !discount) {
+      msg.style.color = '#e53935'; msg.textContent = 'All fields are required.'; return;
+    }
+    try {
+      const res = await fetch(`${API}/admin/products?password=${adminPass}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, image_url, mrp, selling_price, wow_price, discount, slider_images })
+      });
+      const data = await res.json();
+      if (data.success) {
+        msg.style.color = '#2e7d32'; msg.textContent = '✓ Product added!';
+        ['pName','pImage','pSlide2','pSlide3','pSlide4','pMrp','pSell','pWow','pDiscount'].forEach(id => document.getElementById(id).value = '');
+        loadProducts();
+      } else {
+        msg.style.color = '#e53935'; msg.textContent = data.message;
+      }
+    } catch(e) { msg.style.color = '#e53935'; msg.textContent = 'Server error.'; }
+  }
+
+  async function deleteProduct(id) {
+    if (!confirm('Delete this product?')) return;
+    await fetch(`${API}/admin/products/${id}?password=${adminPass}`, { method: 'DELETE' });
+    loadProducts();
+  }
+
+  function appendProductToHome(p) {
+    // Notify user to refresh home.html — products load dynamically there
+    console.log('New product added with id:', p.id, '— home.html will show it on next load');
+  }
+
+  async function loadUpi() {
+    try {
+      const res = await fetch(`${API}/get-upi`);
+      const data = await res.json();
+      if (data.success) document.getElementById('upiInput').value = data.upi_id;
+    } catch (e) {}
+  }
+
+  async function updateUpi() {
+    const upi_id = document.getElementById('upiInput').value.trim();
+    const msg = document.getElementById('upiMsg');
+    if (!upi_id) { msg.style.color = '#e53935'; msg.textContent = 'Enter a valid UPI ID.'; return; }
+    try {
+      const res = await fetch(`${API}/admin/update-upi?password=${adminPass}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ upi_id })
+      });
+      const data = await res.json();
+      msg.style.color = data.success ? '#2e7d32' : '#e53935';
+      msg.textContent = data.success ? '✓ UPI ID updated successfully!' : data.message;
+    } catch (e) {
+      msg.style.color = '#e53935';
+      msg.textContent = 'Error connecting to server.';
+    }
+  }
+
+  async function loadAddresses() {
+    try {
+      const res = await fetch(`${API}/admin/addresses?password=${adminPass}`);
+      const data = await res.json();
+      if (!data.success) return;
+
+      const addresses = data.addresses.reverse();
+      document.getElementById('totalCount').textContent = addresses.length;
+
+      renderTable(addresses);
+      renderCards(addresses);
+    } catch (e) {
+      alert('Could not connect to server. Make sure the backend is running on port 3000.');
+    }
+  }
+
+  function renderTable(addresses) {
+    const tbody = document.getElementById('addressTableBody');
+    if (addresses.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="10"><div class="empty-state"><div class="icon">📭</div><p>No addresses saved yet.</p></div></td></tr>`;
+      return;
+    }
+    tbody.innerHTML = addresses.map((a, i) => `
+      <tr>
+        <td><span class="badge-id">${addresses.length - i}</span></td>
+        <td>${a.timestamp}</td>
+        <td><strong>${a.name}</strong></td>
+        <td>${a.number}</td>
+        <td>${a.flat}</td>
+        <td>${a.area}</td>
+        <td>${a.city}</td>
+        <td>${a.state}</td>
+        <td>${a.pin}</td>
+        <td><button class="delete-btn" onclick="deleteAddress(${a.id})">Delete</button></td>
+      </tr>
+    `).join('');
+  }
+
+  function renderCards(addresses) {
+    const container = document.getElementById('addressCards');
+    if (addresses.length === 0) {
+      container.innerHTML = `<div class="empty-state"><div class="icon">📭</div><p>No addresses saved yet.</p></div>`;
+      return;
+    }
+    container.innerHTML = addresses.map((a, i) => `
+      <div class="address-card">
+        <div class="card-header-row">
+          <div class="card-name">${a.name}</div>
+          <div class="card-time">${a.timestamp}</div>
+        </div>
+        <div class="card-field">📱 <span>${a.number}</span></div>
+        <div class="card-field">🏠 <span>${a.flat}, ${a.area}</span></div>
+        <div class="card-field">📍 <span>${a.city}, ${a.state} - ${a.pin}</span></div>
+        <div class="card-footer-row">
+          <button class="delete-btn" onclick="deleteAddress(${a.id})">Delete</button>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  async function deleteAddress(id) {
+    if (!confirm('Delete this address?')) return;
+    try {
+      const res = await fetch(`${API}/admin/addresses/${id}?password=${adminPass}`, { method: 'DELETE' });
+      const data = await res.json();
+      if (data.success) loadAddresses();
+    } catch (e) {
+      alert('Error deleting address.');
+    }
+  }
+</script>
+</body>
+</html>

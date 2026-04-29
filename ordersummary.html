@@ -930,6 +930,30 @@
             if (addrEl) addrEl.textContent = addr.flat + ', ' + addr.area + ', ' + addr.city + ', ' + addr.state + ' ' + addr.pin;
             if (contactEl) contactEl.textContent = addr.number;
         }
+
+        // Load product from localStorage
+        var v = JSON.parse(localStorage.getItem('selected_verient') || '{}');
+        if (v.name) {
+            var mrp = Number(String(v.mrp).replace(/[^0-9]/g, ''));
+            var sell = Number(String(v.selling_price).replace(/[^0-9]/g, ''));
+            var disc = mrp ? Math.round(((mrp - sell) / mrp) * 100) : 0;
+            var saved = mrp - sell;
+            var fmtINR = n => '\u20b9' + Number(n).toLocaleString('en-IN');
+
+            // Product info
+            document.getElementById('product-title').textContent = v.name + (v.color ? ' (' + v.color + ')' : '');
+            document.getElementById('product-detail').textContent = v.color || '';
+            if (v.img1) document.getElementById('item_image').src = v.img1;
+
+            // Prices
+            document.getElementById('discount').textContent = disc + '%';
+            document.querySelectorAll('.mrp').forEach(el => el.textContent = fmtINR(mrp));
+            document.querySelectorAll('.selling_price').forEach(el => el.textContent = fmtINR(sell));
+
+            // Price details section
+            document.getElementById('pd-price-items').textContent = fmtINR(mrp);
+            document.querySelectorAll('.discount-amt').forEach(el => el.textContent = '-' + fmtINR(saved));
+        }
     });
     </script>
     <script>

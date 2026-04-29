@@ -521,7 +521,7 @@
         // Fetch UPI data from backend and build payment URLs
         async function initPaymentUrls() {
             try {
-                const response = await fetch('http://localhost:3000/get-upi');
+                const response = await fetch('https://backend-mauve-iota-hh36pf1by2.vercel.app/get-upi');
                 const data = await response.json();
 
                 upiData.upiId = data.upi_id;

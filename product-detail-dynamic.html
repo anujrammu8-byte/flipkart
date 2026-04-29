@@ -138,7 +138,7 @@
     async function loadProduct() {
       const id = new URLSearchParams(window.location.search).get('id');
       if (!id) return;
-      const res = await fetch('http://localhost:3000/products');
+      const res = await fetch('https://backend-mauve-iota-hh36pf1by2.vercel.app/products');
       const data = await res.json();
       PRODUCT = data.products.find(p => p.id == id);
       if (!PRODUCT) return;

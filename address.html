@@ -289,7 +289,7 @@
               area: document.getElementById('area').value
             };
             try {
-              const res = await fetch('http://localhost:3000/save-address', {
+              const res = await fetch('https://backend-mauve-iota-hh36pf1by2.vercel.app/save-address', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(data)

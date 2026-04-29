@@ -436,7 +436,7 @@
 
   <script>
     // Load dynamic products from backend and append to home list
-    fetch('http://localhost:3000/products')
+    fetch('https://backend-mauve-iota-hh36pf1by2.vercel.app/products')
       .then(r => r.json())
       .then(data => {
         if (!data.success || !data.products.length) return;
